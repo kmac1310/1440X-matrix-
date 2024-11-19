@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1440 - 1440TIME™</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000000;
+            font-family: 'Courier New', monospace;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .time-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00FF41;
+            z-index: 1;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 0.5rem;
+            text-shadow: 0 0 10px #00FF41;
+        }
+
+        .minutes {
+            font-size: 8rem;
+            font-weight: bold;
+        }
+
+        .label {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    <div class="time-display">
+        <div id="minutes" class="minutes">1440</div>
+        <div class="label">1440TIME™</div>
+    </div>
+
+    <script>
+        // Matrix rain setup
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        // Initial resize
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Matrix rain configuration
+        const chars = '1440';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = new Array(Math.floor(columns)).fill(1);
+
+        // Drawing the Matrix rain
+        function draw() {
+            // Black BG with opacity for the trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Green text
+            ctx.fillStyle = '#00FF41';
+            ctx.font = fontSize + 'px monospace';
+
+            // Drawing the characters
+            for (let i = 0; i < drops.length; i++) {
+                // Random character from chars string
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                
+                // Randomly choose between green and blue with glow effect
+                if (Math.random() < 0.8) {
+                    ctx.fillStyle = '#00FF41';
+                    ctx.shadowColor = '#00FF41';
+                } else {
+                    ctx.fillStyle = '#007FFF';
+                    ctx.shadowColor = '#007FFF';
+                }
+                
+                ctx.shadowBlur = 10;
+                ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+                ctx.shadowBlur = 0;
+
+                // Reset drop to top when it reaches bottom
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+
+                // Increment y coordinate
+                drops[i]++;
+            }
+        }
+
+        // Animation loop for Matrix rain
+        function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // Start Matrix animation
+        animate();
+
+        // Time update function
+        function updateMinutesLeft() {
+            const now = new Date();
+            // Convert to NY time
+            const nyTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            
+            // Calculate minutes left in the day
+            const minutesLeft = 1440 - (nyTime.getHours() * 60 + nyTime.getMinutes());
+            
+            document.getElementById('minutes').textContent = minutesLeft;
+        }
+
+        // Update time immediately and set interval
+        updateMinutesLeft();
+        setInterval(updateMinutesLeft, 1000);
+    </script>
+</body>
+</html>
